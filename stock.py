@@ -58,9 +58,18 @@ class Option:
             
         self.data_stock_price['RSI'] = rsi(self.data_stock_price['Adj Close'], 14)
         print(self.data_stock_price['RSI'][self.data_stock_price.index[-1]])
+        return self.data_stock_price['RSI'][self.data_stock_price.index[-1]]
         
 
-    #def momentum(self)
+    def momentum(self):
+        past_price = pd.DataFrame()
+        last_price = self.data_stock_price['Close'][self.data_stock_price.index[-1]]
+
+        past_price['Od'] = self.data_stock_price['Close'].ewm(com=10).mean()
+        pp = past_price['Od'][past_price.index[-1]]
+        
+        momentum = (last_price/pp)-1
+        return momentum
 
     #def volatility(self)
 
@@ -73,9 +82,10 @@ class Option:
         ema_12['EMA_12'] = self.data_stock_price['Close'].ewm(span=12, adjust=False).mean()
         ema_26['EMA_26'] = self.data_stock_price['Close'].ewm(span=26, adjust=False).mean()
         macd['MACD'] = self.data_stock_price['EMA_12']-self.data_stock_price['EMA_26']
+        print(self.data_stock_price['MACD'][self.data_stock_price.index[-1]])
         ema_9['Signal Line'] = self.data_stock_price['MACD'].ewm(span=9, adjust=False).mean()
 
-        if self.data_stock_price['Signal Line'][self.data_stock_price.index[-1]] > self.data_stock_price['MACD'][self.data_stock_price.index[-1]]:
+        if self.data_stock_price['Signal Line'][self.data_stock_price.index[-1]] < self.data_stock_price['MACD'][self.data_stock_price.index[-1]]:
             return True
         elif self.data_stock_price['Signal Line'][self.data_stock_price.index[-1]] == self.data_stock_price['MACD'][self.data_stock_price.index[-1]]:
             pass
@@ -98,4 +108,4 @@ class Option:
 
 o1 = Option("tsla",0)
 o1.scrape_data()
-o1.relative_strength_index()
+o1.momentum()
