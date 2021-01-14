@@ -1,5 +1,6 @@
 import pandas as pd
 import pandas_datareader as pdr
+from pandas.tseries.offsets import DateOffset
 import numpy as np
 import backtrader as bt
 from datetime import datetime
@@ -66,16 +67,16 @@ class Option:
         return self.data_stock_price['RSI'][self.data_stock_price.index[-1]]
         
 
-    def momentum(self): #have to be changed
-        past_price = pd.DataFrame()
-        last_price = self.data_stock_price['Close'][self.data_stock_price.index[-1]]
+    def momentum(self): #done
+        data = self.data_stock_price
 
-        past_price['Od'] = self.data_stock_price['Close'].ewm(com=14, min_periods=14, adjust=False).mean()
-        pp = past_price['Od'][past_price.index[-1]]
-        
-        momentum = (last_price/pp)-1
-        print (momentum)
-        return momentum
+        last_price = data['Adj Close']
+        past_price = data['Adj Close'].shift(14)
+
+        data['Momentum'] = (last_price/past_price)-1
+        data.to_excel('D:\Code\Python\ tsla.xlsx')
+
+        return data['Momentum'][data.index[-1]]
 
     def volatility(self): #done
         data = self.data_stock_price
@@ -123,4 +124,4 @@ class Option:
 
 o1 = Option("tsla",0)
 o1.scrape_data()
-print(o1.bollinger_bands())
+print(o1.momentum())
