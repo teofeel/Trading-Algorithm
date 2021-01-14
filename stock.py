@@ -34,19 +34,15 @@ class Option:
         ema200['EMA_200'] = self.data_stock_price['Close'].ewm(span=200, adjust=False).mean()
         return self.data_stock_price['EMA_200'][self.data_stock_price.index[-1]]  
 
-    def bollinger_bands(self): #not sure how to return
+    def bollinger_bands(self): #done
         data = self.data_stock_price
-        MA = data.Close.rolling(window=14).mean()
-        SD = data.Close.rolling(window=14).std()
-        data['UpperBB'] = MA + (2 * SD) 
-        data['LowerBB'] = MA - (2 * SD)
 
-        '''if data['Close'][data.index[-1]] < data['LowerBB'][data.index[-1]]:
-            return True
-        elif data['Close'][data.index[-1]] > data['LowerBB'][data.index[-1]]:
-            return False
-        else:
-            pass'''
+        MA = data['Adj Close'].rolling(window=14).mean()
+        SD = data['Adj Close'].rolling(window=14).std()
+
+        data['BB Value'] = (data['Adj Close']-MA)/SD
+
+        return data['BB Value'][data.index[-1]]
 
     def relative_strength_index(self): #done
         def rsi(data, time_period):
@@ -81,7 +77,7 @@ class Option:
         print (momentum)
         return momentum
 
-    def volatility(self):
+    def volatility(self): #done
         data = self.data_stock_price
 
         data['Volatility'] = (data['Adj Close'] - data['Adj Close'].mean())/data['Adj Close'].std(ddof=0)
@@ -127,4 +123,4 @@ class Option:
 
 o1 = Option("tsla",0)
 o1.scrape_data()
-print(o1.volatility())
+print(o1.bollinger_bands())
