@@ -85,9 +85,18 @@ class Option:
 
         return data['Volatility'][data.index[-1]]
 
-    #def donchian_channels(self)
+    def donchian_channels(self):
+        data = self.data_stock_price
+        UC = data
+        LC = data
+        MC = data
 
-    #def stochastic(self)
+        UC['UC'] = data['High'].rolling(window=14).max()
+        LC['LC'] = data['Low'].rolling(window=14).min()   
+        MC['MC'] = ((UC['UC']-LC['LC'])/2)
+
+    def stochastic(self):
+        
 
     def MACD(self): #done
         ema_12 = self.data_stock_price
@@ -124,4 +133,4 @@ class Option:
 
 o1 = Option("tsla",0)
 o1.scrape_data()
-print(o1.momentum())
+o1.donchian_channels()
