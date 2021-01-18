@@ -5,6 +5,7 @@ import numpy as np
 import backtrader as bt
 from datetime import datetime
 import matplotlib
+import requests
 
 class Option:
     def __init__(self, symbol, price):
@@ -22,17 +23,17 @@ class Option:
 
     def ema10(self):
         ema10 = self.data_stock_price
-        ema10['EMA_10'] = self.data_stock_price['Close'].ewm(span = 10, adjust=False).mean()
+        ema10['EMA_10'] = self.data_stock_price['Adj Close'].ewm(span = 10, adjust=False).mean()
         return self.data_stock_price['EMA_10'][self.data_stock_price.index[-1]]
 
     def ema50(self):
         ema50 = self.data_stock_price
-        ema50['EMA_50'] = self.data_stock_price['Close'].ewm(span = 50, adjust=False).mean()
+        ema50['EMA_50'] = self.data_stock_price['Adj Close'].ewm(span = 50, adjust=False).mean()
         return self.data_stock_price['EMA_50'][self.data_stock_price.index[-1]]
 
     def ema200(self):
         ema200 = self.data_stock_price
-        ema200['EMA_200'] = self.data_stock_price['Close'].ewm(span=200, adjust=False).mean()
+        ema200['EMA_200'] = self.data_stock_price['Adj Close'].ewm(span=200, adjust=False).mean()
         return self.data_stock_price['EMA_200'][self.data_stock_price.index[-1]]  
 
     def bollinger_bands(self): #done
@@ -63,7 +64,6 @@ class Option:
             return rsi
             
         self.data_stock_price['RSI'] = rsi(self.data_stock_price['Adj Close'], 14)
-        print(self.data_stock_price['RSI'][self.data_stock_price.index[-1]])
         return self.data_stock_price['RSI'][self.data_stock_price.index[-1]]
         
 
@@ -102,6 +102,7 @@ class Option:
 
         up = data['Adj Close'][data.index[-1]] - data['Low'].rolling(window=14).min()
         down = data['High'].rolling(window=14).max() - data['Low'].rolling(window=14).min()
+        
         k_line = 100*(up/down)
 
 
@@ -114,8 +115,9 @@ class Option:
         
         ema_12['EMA_12'] = self.data_stock_price['Close'].ewm(span=12, adjust=False).mean()
         ema_26['EMA_26'] = self.data_stock_price['Close'].ewm(span=26, adjust=False).mean()
+
         macd['MACD'] = self.data_stock_price['EMA_12']-self.data_stock_price['EMA_26']
-        print(self.data_stock_price['MACD'][self.data_stock_price.index[-1]])
+
         ema_9['Signal Line'] = self.data_stock_price['MACD'].ewm(span=9, adjust=False).mean()
 
         if self.data_stock_price['Signal Line'][self.data_stock_price.index[-1]] < self.data_stock_price['MACD'][self.data_stock_price.index[-1]]:
@@ -126,19 +128,37 @@ class Option:
             return False
         
 
-    #def buy_order(self):
-        #message via discord bot 
-        #For example: Long {stock_name} at price: {price}
+    def buy_order(self): #message via discord
+        myUrl = '#webhook mog servera'
+        price_forBuying = self.data_stock_price['Adj Close'][self.data_stock_price.index[-1]
 
-    #def sell_order(self):
-        #message via discord bot 
-        #For example: Short {stock_name} at price: {price}
+        data = {"content": "Long position of {self.symbol} at price: {price_forBuying}"}
+        response = requests.post(myUrl, json=data)
 
-    #def close_position(self):
-        #message via discord bot 
-        #For example: Close position of {stock_name} at price: {price}
+        print(response.status_code)
+        print(response.content)
+
+    def sell_order(self):
+        myUrl = '#webhook mog servera'
+        price_forBuying = self.data_stock_price['Adj Close'][self.data_stock_price.index[-1]
+
+        data = {"content": "Short position of {self.symbol} at price: {price_forBuying}"}
+        response = requests.post(myUrl, json=data)
+
+        print(response.status_code)
+        print(response.content)
+
+    def close_position(self):
+        myUrl = '#webhook mog servera'
+        price_forBuying = self.data_stock_price['Adj Close'][self.data_stock_price.index[-1]
+
+        data = {"content": "Close position of {self.symbol} at price: {price_forBuying}"}
+        response = requests.post(myUrl, json=data)
+
+        print(response.status_code)
+        print(response.content)
 
 
 o1 = Option("tsla",0)
+
 o1.scrape_data()
-o1.stochastic()
