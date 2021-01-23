@@ -2,7 +2,6 @@ import pandas as pd
 import pandas_datareader as pdr
 from pandas.tseries.offsets import DateOffset
 import numpy as np
-import backtrader as bt
 from datetime import datetime
 import matplotlib
 import requests
