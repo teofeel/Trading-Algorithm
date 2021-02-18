@@ -2,6 +2,7 @@ import backtrader as bt
 import pandas as pd 
 import numpy as np
 from datetime import datetime
+import collections
 
 class TestStrategy(bt.Strategy):
     def log(self, txt, dt=None):
@@ -11,6 +12,9 @@ class TestStrategy(bt.Strategy):
     def __init__(self):
         self.dataclose = self.datas[0].close
     
+    '''def next():
+        
+    '''
     def next(self):
         self.log('Close, %.2f' % self.dataclose[0])
 

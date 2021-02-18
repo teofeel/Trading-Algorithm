@@ -5,11 +5,12 @@ import numpy as np
 from datetime import datetime
 import matplotlib
 import requests
+from bs4 import BeautifulSoup
+import urllib.request
 
 class Option:
-    def __init__(self, symbol, price):
+    def __init__(self, symbol):
         self.symbol = symbol
-        self.price = price
         self.data_stock_price = pd.DataFrame()
         self.data_earnings = pd.DataFrame()
         self.open_position = False
@@ -19,6 +20,41 @@ class Option:
         self.data_stock_price = pd.DataFrame(stock)
         self.data_stock_price.to_excel('D:\Code\Python\Trading Algorithm\ '+self.symbol+'.xlsx')
         #scrape data from yahoo finace
+
+    def scrape_crypto_data(self):
+        url = 'https://coinmarketcap.com/currencies/bitcoin/historical-data'
+        page = urllib.request.urlopen(url)
+        soup = BeautifulSoup(page, 'html.parser')
+
+        priceDiv = soup.find('table', {'class':'table-responsive'})
+        print(type(priceDiv))
+        rows = priceDiv.find_all('tr')
+
+        data = []
+        i = 0
+
+        for row in rows:
+            tmp = []
+            tds = row.findChildren()
+
+            for td in tds:
+                tmp.append(td.text)
+
+            if(i > 0):
+                tmp[0] = tmp[0].replace(',','')
+                tmp[5] = tmp[5].replace(',','')
+                tmp[6] = tmp[6].replace(',','')
+                data.append({'date':datetime.strptime(tmp[0], '%b %d %Y'),
+                            'open':float(tmp[1]),
+                            'high':float(tmp[2]),
+                            'low':float(tmp[3]),
+                            'close':float(tmp[4]),
+                            'volume':float(tmp[5]),
+                            'mcap':float(tmp[6])})
+
+            i = i + 1
+
+            self.data_stock_price = pd.DataFrame(data)
 
     def ema10(self):
         ema10 = self.data_stock_price
@@ -127,7 +163,7 @@ class Option:
             return False
         
 
-    def buy_order(self): #message via discord
+    '''def buy_order(self): #message via discord
         myUrl = '#webhook mog servera'
         price_forBuying = self.data_stock_price['Adj Close'][self.data_stock_price.index[-1]
 
@@ -155,9 +191,10 @@ class Option:
         response = requests.post(myUrl, json=data)
 
         print(response.status_code)
-        print(response.content)
+        print(response.content)'''
 
 
-o1 = Option("tsla",0)
+o1 = Option("tsla")
 
-o1.scrape_data()
+o1.scrape_crypto_data()
+
